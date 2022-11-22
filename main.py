@@ -10,7 +10,13 @@ def show_plot(file_name):
     plt.plot(raw, color="blue")
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
-    plt.show()
+
+
+def show_plot_raw(raw):
+    plt.title("Bonjour")
+    plt.plot(raw, color="black")
+    plt.ylabel("Amplitude")
+    plt.xlabel("Temps")
 
 
 def file_to_process(file_name):
@@ -41,6 +47,15 @@ def compare_two_signal(signal1, signal2):
 
 
 if __name__ == '__main__':
-    show_plot('bonjour.wav')
     print("similitude de ", compare_two_signal(
         'bonjour.wav', 'bonjour2.wav'), ' %')
+    plt.subplot(3, 1, 1)
+    show_plot('bonjour.wav')
+    plt.subplot(3, 1, 2)
+    show_plot('bonjour.wav')
+    plt.subplot(3, 1, 3)
+    raw = np.correlate(file_to_process(
+        'bonjour.wav'), file_to_process('bonjour2.wav'), 'same')
+    print("Cross correlation : ", np.average(raw))
+    show_plot_raw(raw)
+    plt.show()
