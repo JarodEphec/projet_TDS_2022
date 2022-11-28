@@ -19,8 +19,8 @@ def recording():
     filename = "output.wav"
 
     p = pyaudio.PyAudio()  # Create an interface to PortAudio
-
-    print('Parlé.')
+    os.system("clear")
+    print('Parlez.')
 
     stream = p.open(format=sample_format,
                     channels=channels,
@@ -78,7 +78,7 @@ def lissage(signal_brut, L):
 def cut_signal(signal_lisse):
     new_signal = []
     for value in range(len(signal_lisse)):
-        if signal_lisse[value] >= 100:
+        if signal_lisse[value] >= 200:  # Valeur de l'amplitute a partir du quel on suppose que la personne parle
             new_signal.append(signal_lisse[value])
 
     return new_signal
@@ -88,7 +88,7 @@ def diff_signal():
     signal_lisse1 = lissage(signal_absolue1, 3000)
 
     signal_absolue2 = np.absolute(file_to_process("output.wav"))
-    signal_lisse2 = lissage(signal_absolue2, 4000)
+    signal_lisse2 = lissage(signal_absolue2, 3000)
 
     new_signal1 = cut_signal(signal_lisse1)
     new_signal2 = cut_signal(signal_lisse2)
