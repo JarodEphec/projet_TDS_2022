@@ -115,17 +115,18 @@ def diff_signal():
         max_distances = np.arange(500, 1000) * 3)
     indexes_2 = np.array(peaks_2) - 1
 
-    print(indexes_1)
-    print(indexes_2)
-
     peak_difference = []
-    similar_peaks = True
+    similar_peaks = 0
     for i in range(len(peaks_1)):
         peak_difference.append(abs(peaks_1[i] - peaks_2[i]))
-        """if (abs(peaks_1[i] - peaks_2[i]) > 4000):
-            similar_peaks = False
-            break
-    print(f"Not the same person : {peak_difference}") if not similar_peaks else "Hello, familiar person!" """
+        if (abs(peaks_1[i] - peaks_2[i]) > 4000):
+            similar_peaks = similar_peaks + 1
+
+    if similar_peaks > 2:
+        print("Not the same person")
+    else:
+        print("Hello, familiar person!")
+    
     print(peak_difference)
 
     signals_difference = []
