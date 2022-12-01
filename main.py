@@ -62,7 +62,6 @@ def file_to_process(file_name):
         sys.exit(0)
     return raw
 
-
 def lissage(signal_brut, L):
     res = np.copy(signal_brut)  # duplication des valeurs
 
@@ -74,7 +73,6 @@ def lissage(signal_brut, L):
 
     return res
 
-
 def cut_signal(signal_lisse):
     new_signal = []
     for value in range(len(signal_lisse)):
@@ -84,14 +82,21 @@ def cut_signal(signal_lisse):
     return new_signal
 
 def diff_signal():
-    signal_absolue1 = np.absolute(file_to_process("bonjour_laptop.wav"))
+    signal_absolue1 = np.absolute(file_to_process("output.wav"))
     signal_lisse1 = lissage(signal_absolue1, 3000)
 
-    signal_absolue2 = np.absolute(file_to_process("output.wav"))
+    signal_absolue2 = np.absolute(file_to_process("gab_final_output.wav"))
     signal_lisse2 = lissage(signal_absolue2, 3000)
 
-    new_signal1 = cut_signal(signal_lisse1)
-    new_signal2 = cut_signal(signal_lisse2)
+    signal1 = signal.savgol_filter(signal_lisse1, 53, 3, mode='nearest')
+    signal2 = signal.savgol_filter(signal_lisse2, 53, 3, mode='nearest')
+
+    #new_signal1 = cut_signal(signal_lisse1)
+    #new_signal2 = cut_signal(signal_lisse2)
+
+    new_signal1 = cut_signal(signal1)
+    new_signal2 = cut_signal(signal2)
+
 
     if len(new_signal1) < len(new_signal2):
         new_signal2 = new_signal2[:len(new_signal1)]
@@ -99,13 +104,39 @@ def diff_signal():
     elif len(new_signal1) > len(new_signal2):
         new_signal1 = new_signal1[:len(new_signal2)]
 
+    #sgsav1 = signal.savgol_filter(new_signal1, 51, 3)
+    #sgsav2 = signal.savgol_filter(new_signal2, 51, 3)
+
+    peaks_1 = signal.find_peaks_cwt(new_signal1, np.arange(500, 1000),
+        max_distances = np.arange(500, 1000) * 3)
+    indexes_1 = np.array(peaks_1) - 1
+    
+    peaks_2 = signal.find_peaks_cwt(new_signal2, np.arange(500, 1000),
+        max_distances = np.arange(500, 1000) * 3)
+    indexes_2 = np.array(peaks_2) - 1
+
+    print(indexes_1)
+    print(indexes_2)
+
+    peak_difference = []
+    similar_peaks = True
+    for i in range(len(peaks_1)):
+        peak_difference.append(abs(peaks_1[i] - peaks_2[i]))
+        """if (abs(peaks_1[i] - peaks_2[i]) > 4000):
+            similar_peaks = False
+            break
+    print(f"Not the same person : {peak_difference}") if not similar_peaks else "Hello, familiar person!" """
+    print(peak_difference)
+
     signals_difference = []
 
     for value in range(len(new_signal1)):
         signals_difference.append(abs(new_signal1[value] - new_signal2[value]))
+    
     plt.subplot(3, 1, 1)
     plt.title("Bonjour")
     plt.plot(new_signal1, color="blue")
+    plt.scatter
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
 
@@ -116,11 +147,11 @@ def diff_signal():
     plt.xlabel("Temps")
     plt.draw()
 
-
     return sum(signals_difference)/len(signals_difference)
 
 def unlock():
-    os.system("ssh root@tds \"loginctl unlock-sessions\"")
+    #os.system("ssh root@tds \"loginctl unlock-sessions\"")
+    print("System unlocked.")
 
 if __name__ == '__main__':
     recording()
