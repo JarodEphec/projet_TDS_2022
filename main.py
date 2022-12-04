@@ -9,7 +9,7 @@ from scipy.io import wavfile
 import pyaudio
 from datetime import datetime
 import os
-from copy import deepcopy
+from copy import copy
 
 def recording():
     chunk = 1024  # Record in chunks of 1024 samples
@@ -116,33 +116,31 @@ def diff_signal():
 
     # match la longueur des deux indexes de peak
     m = min(len(peaks_1), len(peaks_2))
-    peaks_1 = peaks_1[:m]
-    peaks_2 = peaks_2[:m]
+    peaks_1 = np.array(peaks_1[:m])
+    peaks_2 = np.array(peaks_2[:m])
 
     peak_difference = []
+
     similar_peaks = 0
     for i in range(len(peaks_1)):
-        peak_difference.append(abs(new_signal1[i] - new_signal2[i]))
-        if (abs(peaks_1[i] - peaks_2[i]) > 4000):
+        peak_difference.append(abs(new_signal1[peaks_1[i]] - new_signal2[peaks_2[i]]))
+        if (abs(peaks_1[i] - peaks_2[i]) <= 4000):
             similar_peaks = similar_peaks + 1
 
-    if similar_peaks > 2:
+    if similar_peaks < 4:
         print("Not the same person")
     else:
         print("Hello, familiar person!")
-    
-    print(peak_difference)
 
+    new_signal1B = copy(new_signal1)
     #mise en commun d'amplitude moyenne des signaux
     ampMoyenne1 = sum(np.absolute(new_signal1))/len(new_signal1)
     ampMoyenne2 = sum(np.absolute(new_signal2))/len(new_signal2)
 
-    new_signal1B = deepcopy(new_signal1)
-
     if (ampMoyenne1 > ampMoyenne2):
-        new_signal1B -= np.mean(peak_difference)
+        new_signal1B -= 10 * np.log10(np.mean(ampMoyenne1/ampMoyenne2))
     elif (ampMoyenne1 < ampMoyenne2):
-        new_signal1B += np.mean(peak_difference)
+        new_signal1B += 10 * np.log10(np.mean(ampMoyenne1/ampMoyenne2))
 
     signals_difference = []
 
@@ -151,14 +149,14 @@ def diff_signal():
     
     plt.subplot(3, 1, 1)
     plt.title("Bonjour")
-    plt.plot(new_signal1, color="blue")
+    plt.plot(new_signal1B, color="blue")
     plt.scatter
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
 
     plt.subplot(3, 1, 2)
     plt.title("BonjourModifié")
-    plt.plot(new_signal1B, color="blue")
+    plt.plot(new_signal1, color="blue")
     plt.scatter
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
