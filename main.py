@@ -9,6 +9,7 @@ from scipy.io import wavfile
 import pyaudio
 from datetime import datetime
 import os
+from copy import deepcopy
 
 def recording():
     chunk = 1024  # Record in chunks of 1024 samples
@@ -97,7 +98,7 @@ def diff_signal():
     new_signal1 = cut_signal(signal1)
     new_signal2 = cut_signal(signal2)
 
-
+    # mise en commun du longueur des signaux
     if len(new_signal1) < len(new_signal2):
         new_signal2 = new_signal2[:len(new_signal1)]
 
@@ -109,16 +110,19 @@ def diff_signal():
 
     peaks_1 = signal.find_peaks_cwt(new_signal1, np.arange(500, 1000),
         max_distances = np.arange(500, 1000) * 3)
-    indexes_1 = np.array(peaks_1) - 1
     
     peaks_2 = signal.find_peaks_cwt(new_signal2, np.arange(500, 1000),
         max_distances = np.arange(500, 1000) * 3)
-    indexes_2 = np.array(peaks_2) - 1
+
+    # match la longueur des deux indexes de peak
+    m = min(len(peaks_1), len(peaks_2))
+    peaks_1 = peaks_1[:m]
+    peaks_2 = peaks_2[:m]
 
     peak_difference = []
     similar_peaks = 0
     for i in range(len(peaks_1)):
-        peak_difference.append(abs(peaks_1[i] - peaks_2[i]))
+        peak_difference.append(abs(new_signal1[i] - new_signal2[i]))
         if (abs(peaks_1[i] - peaks_2[i]) > 4000):
             similar_peaks = similar_peaks + 1
 
@@ -129,10 +133,21 @@ def diff_signal():
     
     print(peak_difference)
 
+    #mise en commun d'amplitude moyenne des signaux
+    ampMoyenne1 = sum(np.absolute(new_signal1))/len(new_signal1)
+    ampMoyenne2 = sum(np.absolute(new_signal2))/len(new_signal2)
+
+    new_signal1B = deepcopy(new_signal1)
+
+    if (ampMoyenne1 > ampMoyenne2):
+        new_signal1B -= np.mean(peak_difference)
+    elif (ampMoyenne1 < ampMoyenne2):
+        new_signal1B += np.mean(peak_difference)
+
     signals_difference = []
 
-    for value in range(len(new_signal1)):
-        signals_difference.append(abs(new_signal1[value] - new_signal2[value]))
+    for value in range(len(new_signal1B)):
+        signals_difference.append(abs(new_signal1B[value] - new_signal2[value]))
     
     plt.subplot(3, 1, 1)
     plt.title("Bonjour")
@@ -141,8 +156,15 @@ def diff_signal():
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
 
+    plt.subplot(3, 1, 2)
+    plt.title("BonjourModifié")
+    plt.plot(new_signal1B, color="blue")
+    plt.scatter
+    plt.ylabel("Amplitude")
+    plt.xlabel("Temps")
+
     plt.subplot(3, 1, 3)
-    plt.title("Bonjour2")
+    plt.title("BonjourDB")
     plt.plot(new_signal2, color="blue")
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
