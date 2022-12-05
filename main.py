@@ -84,19 +84,19 @@ def cut_signal(signal_lisse):
 
 def diff_signal():
     signal_absolue1 = np.absolute(file_to_process("output.wav"))
-    signal_lisse1 = lissage(signal_absolue1, 3000)
+    signal_lisse1 = lissage(signal_absolue1, 5000)
 
     signal_absolue2 = np.absolute(file_to_process("gab_final_output.wav"))
-    signal_lisse2 = lissage(signal_absolue2, 3000)
+    signal_lisse2 = lissage(signal_absolue2, 5000)
 
-    signal1 = signal.savgol_filter(signal_lisse1, 53, 3, mode='nearest')
-    signal2 = signal.savgol_filter(signal_lisse2, 53, 3, mode='nearest')
+    #signal1 = signal.savgol_filter(signal_lisse1, 53, 3, mode='nearest')
+    #signal2 = signal.savgol_filter(signal_lisse2, 53, 3, mode='nearest')
 
-    #new_signal1 = cut_signal(signal_lisse1)
-    #new_signal2 = cut_signal(signal_lisse2)
+    new_signal1 = cut_signal(signal_lisse1)
+    new_signal2 = cut_signal(signal_lisse2)
 
-    new_signal1 = cut_signal(signal1)
-    new_signal2 = cut_signal(signal2)
+    #new_signal1 = cut_signal(signal1)
+    #new_signal2 = cut_signal(signal2)
 
     # mise en commun du longueur des signaux
     if len(new_signal1) < len(new_signal2):
@@ -108,16 +108,19 @@ def diff_signal():
     #sgsav1 = signal.savgol_filter(new_signal1, 51, 3)
     #sgsav2 = signal.savgol_filter(new_signal2, 51, 3)
 
-    peaks_1 = signal.find_peaks_cwt(new_signal1, np.arange(500, 1000),
-        max_distances = np.arange(500, 1000) * 3)
+    peaks_1 = signal.find_peaks_cwt(new_signal1, np.arange(250, 500),
+        max_distances = np.arange(250, 500) * 2)
     
-    peaks_2 = signal.find_peaks_cwt(new_signal2, np.arange(500, 1000),
-        max_distances = np.arange(500, 1000) * 3)
+    peaks_2 = signal.find_peaks_cwt(new_signal2, np.arange(250, 500),
+        max_distances = np.arange(250, 500 ) * 2)
 
     # match la longueur des deux indexes de peak
     m = min(len(peaks_1), len(peaks_2))
     peaks_1 = np.array(peaks_1[:m])
     peaks_2 = np.array(peaks_2[:m])
+
+    print(peaks_1)
+    print(peaks_2)
 
     peak_difference = []
 
@@ -132,31 +135,26 @@ def diff_signal():
     else:
         print("Hello, familiar person!")
 
-    new_signal1B = copy(new_signal1)
-    #mise en commun d'amplitude moyenne des signaux
-    ampMoyenne1 = sum(np.absolute(new_signal1))/len(new_signal1)
-    ampMoyenne2 = sum(np.absolute(new_signal2))/len(new_signal2)
+    print(peak_difference)
 
-    if (ampMoyenne1 > ampMoyenne2):
-        new_signal1B -= 10 * np.log10(np.mean(ampMoyenne1/ampMoyenne2))
-    elif (ampMoyenne1 < ampMoyenne2):
-        new_signal1B += 10 * np.log10(np.mean(ampMoyenne1/ampMoyenne2))
+    mean_peak_diff = np.mean(peak_difference)
+    new_signal3 = [x + mean_peak_diff for x in new_signal1]
 
     signals_difference = []
 
-    for value in range(len(new_signal1B)):
-        signals_difference.append(abs(new_signal1B[value] - new_signal2[value]))
+    for value in range(len(new_signal1)):
+        signals_difference.append(abs(new_signal1[value] - new_signal2[value]))
     
     plt.subplot(3, 1, 1)
     plt.title("Bonjour")
-    plt.plot(new_signal1B, color="blue")
+    plt.plot(new_signal1, color="blue")
     plt.scatter
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
 
     plt.subplot(3, 1, 2)
     plt.title("BonjourModifié")
-    plt.plot(new_signal1, color="blue")
+    plt.plot(new_signal3, color="blue")
     plt.scatter
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
