@@ -74,20 +74,42 @@ def lissage(signal_brut, L):
 
     return res
 
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = signal.butter(order, [low, high], analog=False, btype='band')
+    return b, a
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = signal.lfilter(b, a, data)
+    return y
+
 def cut_signal(signal_lisse):
     new_signal = []
     for value in range(len(signal_lisse)):
         if signal_lisse[value] >= 200:  # Valeur de l'amplitute a partir du quel on suppose que la personne parle
             new_signal.append(signal_lisse[value])
-
     return new_signal
 
-def diff_signal():
-    signal_absolue1 = np.absolute(file_to_process("output.wav"))
-    signal_lisse1 = lissage(signal_absolue1, 5000)
+def filter_signal(signal):
+    sample_rate = 44100.0
+    human_low_freq = 70.0
+    human_high_freq = 270.0
 
-    signal_absolue2 = np.absolute(file_to_process("gab_final_output.wav"))
-    signal_lisse2 = lissage(signal_absolue2, 5000)
+    filtered_signal = butter_bandpass_filter(signal, human_low_freq, human_high_freq, sample_rate)
+
+def diff_signal():
+    #signal_brut1 = file_to_process("output.wav")
+    signal_absolue1 = np.absolute(file_to_process("output.wav")) 
+    signal_filtre1 = filter_signal(signal_absolue1)
+    signal_lisse1 = lissage(signal_filtre1, 5000)
+
+    #signal_brut2 = file_to_process("gab_final_output.wav")
+    signal_absolue2 = np.absolute(file_to_process("gab_final_output.wav")) 
+    signal_filtre2 = filter_signal(signal_absolue2)
+    signal_lisse2 = lissage(signal_filtre2, 5000)
 
     #signal1 = signal.savgol_filter(signal_lisse1, 53, 3, mode='nearest')
     #signal2 = signal.savgol_filter(signal_lisse2, 53, 3, mode='nearest')
@@ -173,7 +195,7 @@ def unlock():
     print("System unlocked.")
 
 if __name__ == '__main__':
-    recording()
+    #recording()
 
     result = diff_signal()
     if result <= 400:
