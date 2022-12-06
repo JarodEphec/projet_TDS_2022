@@ -12,6 +12,8 @@ import os
 from copy import copy
 
 def recording():
+    """This method allows the user to input their voice.
+    """
     chunk = 1024  # Record in chunks of 1024 samples
     sample_format = pyaudio.paInt16  # 16 bits per sample
     channels = 1
@@ -52,6 +54,8 @@ def recording():
     wf.close()
 
 def file_to_process(file_name):
+    """This method processes the wav file into a numpy array.
+    """
     if not file_name.endswith('.wav'):
         print("Audio avec l'extension wav uniquement.")
         sys.exit(0)
@@ -101,15 +105,17 @@ def filter_signal(signal):
     filtered_signal = butter_bandpass_filter(signal, human_low_freq, human_high_freq, sample_rate)
 
 def diff_signal():
+    """This method checks the difference between the signals.
+    """
     #signal_brut1 = file_to_process("output.wav")
     signal_absolue1 = np.absolute(file_to_process("output.wav")) 
-    signal_filtre1 = filter_signal(signal_absolue1)
-    signal_lisse1 = lissage(signal_filtre1, 5000)
+    #signal_filtre1 = filter_signal(signal_absolue1)
+    signal_lisse1 = lissage(signal_absolue1, 5000)
 
     #signal_brut2 = file_to_process("gab_final_output.wav")
     signal_absolue2 = np.absolute(file_to_process("gab_final_output.wav")) 
-    signal_filtre2 = filter_signal(signal_absolue2)
-    signal_lisse2 = lissage(signal_filtre2, 5000)
+    #signal_filtre2 = filter_signal(signal_absolue2)
+    signal_lisse2 = lissage(signal_absolue2, 5000)
 
     #signal1 = signal.savgol_filter(signal_lisse1, 53, 3, mode='nearest')
     #signal2 = signal.savgol_filter(signal_lisse2, 53, 3, mode='nearest')
