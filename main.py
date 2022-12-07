@@ -15,7 +15,7 @@ import speech_recognition as sr  # pip3 install SpeechRecognition
 password = "Bonjour"  # la passphrase prédéfinie
 
 # Le signal sur le quel le programme se base.
-compare_file = "bonjour.wav"
+compare_file = "bonjour_laptop.wav"
 # La valeur qui nous permet d'augmenter ou de réduire la précision, EG : 150 = trés précis et 800 = pas très précis.
 precision_threshold = 400
 
@@ -177,22 +177,20 @@ def diff_signal():
     for value in range(len(new_signal3)):
         signals_difference.append(abs(new_signal3[value] - new_signal1[value]))
 
-    plt.subplot(3, 1, 1)
-    plt.title("Bonjour de base")
+    plt.subplot(5, 1, 1)
+    plt.title("Signal de base")
     plt.plot(new_signal1, color="blue")
     plt.scatter
     plt.ylabel("Amplitude")
-    plt.xlabel("Temps")
 
-    plt.subplot(3, 1, 2)
-    plt.title("Bonjour reçu")
+    plt.subplot(5, 1, 3)
+    plt.title("Signal reçu")
     plt.plot(new_signal2, color="blue")
     plt.scatter
     plt.ylabel("Amplitude")
-    plt.xlabel("Temps")
 
-    plt.subplot(3, 1, 3)
-    plt.title("Bonjour Modifié")
+    plt.subplot(5, 1, 5)
+    plt.title("Signal reçu modifié")
     plt.plot(new_signal3, color="blue")
     plt.ylabel("Amplitude")
     plt.xlabel("Temps")
